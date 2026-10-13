@@ -1,1 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>CyberTap Game</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #0b0e14;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .header { text-align: center; margin-top: 10px; }
+    .token-title { font-size: 13px; color: #00ffcc; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+    .score { font-size: 48px; font-weight: 900; text-shadow: 0 0 20px rgba(0, 255, 204, 0.5); }
+    .coin-container { display: flex; justify-content: center; align-items: center; flex-grow: 1; }
+    .coin {
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, #00ffcc 0%, #0044ff 100%);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(0, 255, 204, 0.4);
+      cursor: pointer;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.08s ease;
+    }
+    .coin:active { transform: scale(0.93); }
+    .coin-text { font-size: 36px; font-weight: 900; color: #ffffff; letter-spacing: 3px; }
+    .coin-sub { font-size: 11px; color: #a5f3fc; margin-top: 5px; letter-spacing: 1px; }
+    .footer-panel { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
+    .energy-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #94a3b8; font-weight: 600; }
+    .energy-bar { width: 100%; height: 12px; background-color: #1e293b; border-radius: 6px; overflow: hidden; border: 1px solid #334155; }
+    .energy-fill { height: 100%; background: linear-gradient(90deg, #0044ff, #00ffcc); width: 100%; transition: width 0.1s ease; }
+    .boost-btn {
+      background: linear-gradient(135deg, #00ffcc 0%, #0066ff 100%);
+      color: #0b0e14;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+    }
+  </style>
+</head>
+<body>
 
+  <div class="header">
+    <div class="token-title">$CYBER Balance</div>
+    <div class="score" id="score">0</div>
+  </div>
+
+  <div class="coin-container">
+    <div class="coin" id="tapCoin">
+      <div class="coin-text">TAP</div>
+      <div class="coin-sub">CYBER ECOSYSTEM</div>
+    </div>
+  </div>
+
+  <div class="footer-panel">
+    <div>
+      <div class="energy-info">
+        <span>⚡ Energy</span>
+        <span id="energyText">1000 / 1000</span>
+      </div>
+      <div class="energy-bar">
+        <div class="energy-fill" id="energyFill"></div>
+      </div>
+    </div>
+    <button class="boost-btn" id="watchAdBtn">Restore Energy</button>
+  </div>
+
+  <script>
+    // Ініціалізація Telegram WebApp
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      try { tg.ready(); tg.expand(); } catch (e) {}
+    }
+
+    let score = 0;
+    let maxEnergy = 1000;
+    let energy = 1000;
+    let tapPower = 1;
+    let pendingClicks = 0;
+
+    const scoreElement = document.getElementById('score');
+    const tapCoin = document.getElementById('tapCoin');
+    const energyFill = document.getElementById('energyFill');
+    const energyText = document.getElementById('energyText');
+    const watchAdBtn = document.getElementById('watchAdBtn');
+
+    // Відновлення енергії
+    setInterval(() => {
+      if (energy < maxEnergy) {
+        energy = Math.min(maxEnergy, energy + 3);
+        updateEnergyUI();
+      }
+    }, 1000);
+
+    function updateEnergyUI() {
+      energyText.innerText = `${energy} / ${maxEnergy}`;
+      energyFill.style.width = `${(energy / maxEnergy) * 100}%`;
+    }
+
+    // Кліки
+    tapCoin.addEventListener('click', (e) => {
+      if (energy >= tapPower) {
+        energy -= tapPower;
+        score += tapPower;
+        pendingClicks += tapPower;
+        
+        scoreElement.innerText = score.toLocaleString();
+        updateEnergyUI();
+
+        if (tg && tg.HapticFeedback) {
+          try { tg.HapticFeedback.impactOccurred('light'); } catch (err) {}
+        }
+      }
+    });
+
+    // Відновлення енергії кнопкою
+    watchAdBtn.addEventListener('click', () => {
+      energy = maxEnergy;
+      updateEnergyUI();
+      if (tg && tg.HapticFeedback) {
+        try { tg.HapticFeedback.notificationOccurred('success'); } catch (err) {}
+      }
+    });
+
+    // Синхронізація з сервером кожні 5 секунд
+    setInterval(async () => {
+      if (pendingClicks > 0) {
+        const clicksToSend = pendingClicks;
+        pendingClicks = 0;
+        try {
+          await fetch('/api/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              clicks: clicksToSend,
+              user: tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : { id: 'test_user' }
+            })
+          });
+        } catch (err) {
+          pendingClicks += clicksToSend; // Повертаємо, якщо зник інтернет
+        }
+      }
+    }, 5000);
+  </script>
+</body>
+</html>
