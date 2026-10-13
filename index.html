@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CyberTap Game</title>
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -23,24 +23,26 @@
             align-items: center;
             justify-content: space-between;
             height: 100vh;
+            height: 100dvh;
             padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
             overflow: hidden;
         }
         .header {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
             width: 100%;
         }
         .token-title {
             font-size: 14px;
             color: #00ffcc;
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             font-weight: bold;
         }
         .score {
-            font-size: 52px;
+            font-size: 48px;
             font-weight: 900;
             color: #ffffff;
             text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
@@ -54,8 +56,8 @@
             width: 100%;
         }
         .coin {
-            width: 250px;
-            height: 250px;
+            width: min(60vw, 220px);
+            height: min(60vw, 220px);
             background: radial-gradient(circle, #001133 0%, #000a1f 100%);
             border-radius: 50%;
             display: flex;
@@ -74,16 +76,16 @@
             box-shadow: 0 0 60px rgba(0, 255, 204, 0.8), inset 0 0 40px rgba(255, 0, 255, 0.4);
         }
         .coin-text {
-            font-size: 42px;
+            font-size: 38px;
             font-weight: 900;
             color: #ffffff;
             letter-spacing: 4px;
             text-shadow: 0 0 10px #ff00ff;
         }
         .coin-sub {
-            font-size: 12px;
+            font-size: 11px;
             color: #a5f3fc;
-            margin-top: 5px;
+            margin-top: 4px;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
@@ -92,8 +94,8 @@
             max-width: 400px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 10px;
         }
         .energy-box {
             width: 100%;
@@ -101,16 +103,16 @@
         .energy-info {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 13px;
+            margin-bottom: 6px;
             color: #94a3b8;
             font-weight: 700;
         }
         .energy-bar {
             width: 100%;
-            height: 14px;
+            height: 12px;
             background-color: #1e293b;
-            border-radius: 7px;
+            border-radius: 6px;
             overflow: hidden;
             border: 1px solid #334155;
         }
@@ -124,9 +126,9 @@
             background: linear-gradient(135deg, #0044ff 0%, #00ffcc 100%);
             color: #000000;
             border: none;
-            padding: 16px;
+            padding: 14px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             cursor: pointer;
             text-transform: uppercase;
@@ -140,13 +142,13 @@
             position: absolute;
             color: #00ffcc;
             font-weight: 900;
-            font-size: 26px;
+            font-size: 24px;
             pointer-events: none;
             text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
             transition: transform 0.8s ease-out, opacity 0.8s ease-out;
             z-index: 10;
         }
-    </script>
+    </style>
 </head>
 <body>
 
@@ -172,22 +174,21 @@
                 <div class="energy-fill" id="energyFill"></div>
             </div>
         </div>
-        <button class="boost-btn" id="watchAdBtn">Watch Ad for Full Energy</button>
+        <button class="boost-btn" id="watchAdBtn">Restore Energy</button>
     </div>
 
     <script>
-        // Ініціалізація Telegram WebApp
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg) {
+            try { tg.ready(); tg.expand(); } catch (e) {}
+        }
 
-        // Ігрові змінні
         let score = 0;
         let maxEnergy = 1000;
         let energy = 1000;
         let tapPower = 1;
         let pendingClicks = 0; 
 
-        // Елементи інтерфейсу
         const scoreElement = document.getElementById('score');
         const tapCoin = document.getElementById('tapCoin');
         const energyFill = document.getElementById('energyFill');
@@ -218,49 +219,61 @@
                 updateEnergyUI();
 
                 // Візуальний ефект "+1"
-                createFloatingText(e.clientX, e.clientY, `+${tapPower}`);
+                createFloatingText(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, `+${tapPower}`);
+
+                if (tg && tg.HapticFeedback) {
+                    try { tg.HapticFeedback.impactOccurred('light'); } catch (err) {}
+                }
             } else {
-                // Вібрація Telegram, якщо немає енергії
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+                if (tg && tg.HapticFeedback) {
+                    try { tg.HapticFeedback.notificationOccurred('error'); } catch (err) {}
+                }
             }
         });
 
-        // Створення літаючих цифр при кліку
+        // Анімація літаючих цифр
         function createFloatingText(x, y, text) {
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = text;
-            el.style.left = `${x - 10}px`;
+            el.style.left = `${x - 12}px`;
             el.style.top = `${y - 20}px`;
             document.body.appendChild(el);
 
-            // Анімація
             requestAnimationFrame(() => {
-                el.style.transform = 'translateY(-80px)';
+                el.style.transform = 'translateY(-70px)';
                 el.style.opacity = '0';
             });
 
-            // Видалення елемента після завершення анімації
-            setTimeout(() => {
-                el.remove();
-            }, 800);
+            setTimeout(() => { el.remove(); }, 800);
         }
 
-        // Кнопка реклами (Відновлення енергії)
+        // Кнопка відновлення енергії
         watchAdBtn.addEventListener('click', () => {
-            // Заглушка: тут буде виклик рекламної мережі (напр. Adsgram)
             energy = maxEnergy;
             updateEnergyUI();
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            window.Telegram.WebApp.showAlert("Energy fully restored!");
+            if (tg && tg.HapticFeedback) {
+                try { tg.HapticFeedback.notificationOccurred('success'); } catch (err) {}
+            }
         });
 
-        // Батч-синхронізація із сервером кожні 5 секунд
-        setInterval(() => {
+        // Автоматична синхронізація із сервером Vercel кожні 5 секунд
+        setInterval(async () => {
             if (pendingClicks > 0) {
-                console.log(`Sending ${pendingClicks} clicks to database...`);
-                // fetch('/api/sync', { method: 'POST', body: JSON.stringify({ clicks: pendingClicks }) });
+                const clicksToSend = pendingClicks;
                 pendingClicks = 0;
+                try {
+                    await fetch('/api/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            clicks: clicksToSend,
+                            user: tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : { id: 'demo_user' }
+                        })
+                    });
+                } catch (err) {
+                    pendingClicks += clicksToSend; // Повертаємо кліки у разі збою мережі
+                }
             }
         }, 5000);
     </script>
