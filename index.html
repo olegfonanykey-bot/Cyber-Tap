@@ -1,281 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CyberTap Game</title>
-    <!-- Telegram Web App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background-color: #0b0e14;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            height: 100dvh;
-            padding: 20px;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            overflow: hidden;
-        }
-        .header {
-            text-align: center;
-            margin-top: 10px;
-            width: 100%;
-        }
-        .token-title {
-            font-size: 14px;
-            color: #00ffcc;
-            letter-spacing: 2px;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .score {
-            font-size: 48px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-        }
-        .coin-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-grow: 1;
-            position: relative;
-            width: 100%;
-        }
-        .coin {
-            width: min(60vw, 220px);
-            height: min(60vw, 220px);
-            background: radial-gradient(circle, #001133 0%, #000a1f 100%);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 40px rgba(0, 255, 204, 0.5), inset 0 0 30px rgba(255, 0, 255, 0.2);
-            cursor: pointer;
-            transition: transform 0.05s ease;
-            border: 4px solid #00ffcc;
-            position: relative;
-            overflow: hidden;
-        }
-        .coin:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 60px rgba(0, 255, 204, 0.8), inset 0 0 40px rgba(255, 0, 255, 0.4);
-        }
-        .coin-text {
-            font-size: 38px;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px #ff00ff;
-        }
-        .coin-sub {
-            font-size: 11px;
-            color: #a5f3fc;
-            margin-top: 4px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .footer-panel {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-        .energy-box {
-            width: 100%;
-        }
-        .energy-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 6px;
-            color: #94a3b8;
-            font-weight: 700;
-        }
-        .energy-bar {
-            width: 100%;
-            height: 12px;
-            background-color: #1e293b;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #334155;
-        }
-        .energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff00ff, #00ffcc);
-            width: 100%;
-            transition: width 0.2s ease;
-        }
-        .boost-btn {
-            background: linear-gradient(135deg, #0044ff 0%, #00ffcc 100%);
-            color: #000000;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
-            transition: opacity 0.2s;
-        }
-        .boost-btn:active {
-            opacity: 0.7;
-        }
-        .floating-text {
-            position: absolute;
-            color: #00ffcc;
-            font-weight: 900;
-            font-size: 24px;
-            pointer-events: none;
-            text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
-            transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-            z-index: 10;
-        }
-    </style>
-</head>
-<body>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Империя Кликов</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --card: #141a2b;
+      --card-hover: #1c2438;
+      --accent: #00f0ff;
+      --accent2: #ff00aa;
+      --gold: #ffd700;
+      --text: #e8f0ff;
+      --muted: #8b9bb4;
+      --success: #00e676;
+      --danger: #ff5252;
+    }
 
-    <div class="header">
-        <div class="token-title">$CYBER Balance</div>
-        <div class="score" id="score">0</div>
-    </div>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    <div class="coin-container">
-        <div class="coin" id="tapCoin">
-            <div class="coin-text">TAP</div>
-            <div class="coin-sub">MINING ACTIVE</div>
-        </div>
-    </div>
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 0, 170, 0.06) 0%, transparent 50%);
+    }
 
-    <div class="footer-panel">
-        <div class="energy-box">
-            <div class="energy-info">
-                <span>⚡ Energy</span>
-                <span id="energyText">1000 / 1000</span>
-            </div>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energyFill"></div>
-            </div>
-        </div>
-        <button class="boost-btn" id="watchAdBtn">Restore Energy</button>
-    </div>
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px;
+      padding-bottom: 100px;
+    }
 
-    <script>
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg) {
-            try { tg.ready(); tg.expand(); } catch (e) {}
-        }
+    header {
+      text-align: center;
+      padding: 16px 0 8px;
+      position: relative;
+    }
 
-        let score = 0;
-        let maxEnergy = 1000;
-        let energy = 1000;
-        let tapPower = 1;
-        let pendingClicks = 0; 
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
 
-        const scoreElement = document.getElementById('score');
-        const tapCoin = document.getElementById('tapCoin');
-        const energyFill = document.getElementById('energyFill');
-        const energyText = document.getElementById('energyText');
-        const watchAdBtn = document.getElementById('watchAdBtn');
+    .prestige-badge {
+      position: absolute;
+      top: 12px;
+      right: 8px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #1a1200;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    }
 
-        // Відновлення енергії (3 одиниці на секунду)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 3);
-                updateEnergyUI();
-            }
-        }, 1000);
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
 
-        function updateEnergyUI() {
-            energyText.innerText = `${energy} / ${maxEnergy}`;
-            energyFill.style.width = `${(energy / maxEnergy) * 100}%`;
-        }
+    .stat-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid rgba(0, 240, 255, 0.1);
+    }
 
-        // Логіка тапання
-        tapCoin.addEventListener('click', (e) => {
-            if (energy >= tapPower) {
-                energy -= tapPower;
-                score += tapPower;
-                pendingClicks += tapPower;
-                
-                scoreElement.innerText = score.toLocaleString();
-                updateEnergyUI();
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
 
-                // Візуальний ефект "+1"
-                createFloatingText(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, `+${tapPower}`);
+    .stat-card .value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
 
-                if (tg && tg.HapticFeedback) {
-                    try { tg.HapticFeedback.impactOccurred('light'); } catch (err) {}
-                }
-            } else {
-                if (tg && tg.HapticFeedback) {
-                    try { tg.HapticFeedback.notificationOccurred('error'); } catch (err) {}
-                }
-            }
-        });
+    .stat-card.gold .value {
+      color: var(--gold);
+    }
 
-        // Анімація літаючих цифр
-        function createFloatingText(x, y, text) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = text;
-            el.style.left = `${x - 12}px`;
-            el.style.top = `${y - 20}px`;
-            document.body.appendChild(el);
+    /* Main click area */
+    .click-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 24px 0;
+    }
 
-            requestAnimationFrame(() => {
-                el.style.transform = 'translateY(-70px)';
-                el.style.opacity = '0';
-            });
+    .big-btn {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: none;
+      background: radial-gradient(circle at 30% 30%, #1a3a5c, #0a1525);
+      box-shadow: 
+        0 0 0 6px rgba(0, 240, 255, 0.15),
+        0 0 40px rgba(0, 240, 255, 0.25),
+        inset 0 0 30px rgba(0, 240, 255, 0.1);
+      color: var(--accent);
+      font-size: 3.5rem;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
 
-            setTimeout(() => { el.remove(); }, 800);
-        }
+    .big-btn:active {
+      transform: scale(0.92);
+      box-shadow: 
+        0 0 0 4px rgba(0, 240, 255, 0.3),
+        0 0 60px rgba(0, 240, 255, 0.4);
+    }
 
-        // Кнопка відновлення енергії
-        watchAdBtn.addEventListener('click', () => {
-            energy = maxEnergy;
-            updateEnergyUI();
-            if (tg && tg.HapticFeedback) {
-                try { tg.HapticFeedback.notificationOccurred('success'); } catch (err) {}
-            }
-        });
+    .big-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
 
-        // Автоматична синхронізація із сервером Vercel кожні 5 секунд
-        setInterval(async () => {
-            if (pendingClicks > 0) {
-                const clicksToSend = pendingClicks;
-                pendingClicks = 0;
-                try {
-                    await fetch('/api/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            clicks: clicksToSend,
-                            user: tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : { id: 'demo_user' }
-                        })
-                    });
-                } catch (err) {
-                    pendingClicks += clicksToSend; // Повертаємо кліки у разі збою мережі
-                }
-            }
-        }, 5000);
-    </script>
-</body>
-</html>
+    .big-btn:active::after {
+      opacity: 1;
+    }
+
+    .click-power {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .click-power span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin: 20px 0 12px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 4px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 4px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.85
+... 
